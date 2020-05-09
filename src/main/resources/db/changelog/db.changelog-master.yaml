@@ -1,0 +1,101 @@
+databaseChangeLog:
+  - preConditions:
+      - runningAs:
+          username: sa
+
+  - changeSet:
+      id: 1
+      author: ksh
+      changes:
+        - createTable:
+            tableName: Person
+            columns:
+              - column:
+                  name: id
+                  type: long
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: uuid
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: firstname
+                  type: varchar(50)
+              - column:
+                  name: lastname
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: organization
+                  type: long
+              - column:
+                  name: position
+                  type: long
+        - createTable:
+            tableName: Organization
+            columns:
+              - column:
+                  name: id
+                  type: long
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(50)
+              - column:
+                  name: notes
+                  type: varchar(500)
+        - createTable:
+            tableName: OrganizationAddress
+            columns:
+              - column:
+                  name: id
+                  type: long
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: organizationId
+                  type: long
+              - column:
+                  name: street
+                  type: varchar(50)
+              - column:
+                  name: zipcode
+                  type: varchar(5)
+              - column:
+                  name: town
+                  type: varchar(50)
+              - column:
+                  name: country
+                  type: varchar(25)
+              - column:
+                  name: phone
+                  type: varchar(20)
+              - column:
+                  name: fax
+                  type: varchar(20)
+              - column:
+                  name: email
+                  type: varchar(40)
+        - createTable:
+            tableName: OrganizationPosition
+            column:
+              - column:
+                  name: id
+                  type: long
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(20)
+
+
+
+
