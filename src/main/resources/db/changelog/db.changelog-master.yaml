@@ -30,10 +30,10 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: organization
+                  name: organization_id
                   type: long
               - column:
-                  name: position
+                  name: position_id
                   type: long
         - createTable:
             tableName: Organization
@@ -60,7 +60,7 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: organizationId
+                  name: organization_id
                   type: long
               - column:
                   name: street
