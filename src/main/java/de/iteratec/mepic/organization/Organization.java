@@ -2,6 +2,7 @@ package de.iteratec.mepic.organization;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 public class Organization {
@@ -9,6 +10,9 @@ public class Organization {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID uuid;
 
     private String name;
 

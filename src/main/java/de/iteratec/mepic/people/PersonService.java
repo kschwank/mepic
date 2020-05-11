@@ -8,10 +8,10 @@ import java.util.UUID;
 @Service
 public class PersonService {
 
-    PeopleRepository repository;
+    PersonRepository repository;
 
     @Autowired
-    public PersonService(PeopleRepository repository) {
+    public PersonService(PersonRepository repository) {
         this.repository = repository;
     }
 

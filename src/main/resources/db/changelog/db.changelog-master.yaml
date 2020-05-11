@@ -45,6 +45,11 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
+                  name: uuid
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
                   name: name
                   type: varchar(50)
               - column:
@@ -58,6 +63,11 @@ databaseChangeLog:
                   type: long
                   constraints:
                     primaryKey: true
+                    nullable: false
+              - column:
+                  name: uuid
+                  type: uuid
+                  constraints:
                     nullable: false
               - column:
                   name: organization_id
@@ -91,6 +101,11 @@ databaseChangeLog:
                   type: long
                   constraints:
                     primaryKey: true
+                    nullable: false
+              - column:
+                  name: uuid
+                  type: uuid
+                  constraints:
                     nullable: false
               - column:
                   name: title

@@ -4,6 +4,7 @@ import de.iteratec.mepic.people.Person;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.UUID;
 
 @Entity
 public class ProjectAssignment {
@@ -11,6 +12,9 @@ public class ProjectAssignment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID uuid;
 
     @OneToOne
     private Project project;
