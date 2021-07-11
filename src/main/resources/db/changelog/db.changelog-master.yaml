@@ -1,0 +1,7 @@
+---
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: ksh
+#  - include:
+#      file: db/changelog/1.0/add-initial-schema.yaml

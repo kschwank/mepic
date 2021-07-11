@@ -1,0 +1,154 @@
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor
+import org.jasypt.iv.RandomIvGenerator
+import org.jasypt.salt.RandomSaltGenerator
+import org.yaml.snakeyaml.Yaml
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.byteowls:jasypt-gradle-plugin:1.0.1'
+        classpath 'org.yaml:snakeyaml:1.19'
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.5.2'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.openapi.generator' version '5.1.0'
+    id 'org.liquibase.gradle' version '2.0.3'
+    id 'java'
+}
+
+group = 'com.iteratec'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+
+    liquibaseRuntime.extendsFrom runtime
+
+    [apiElements, runtimeElements].each {
+        it.outgoing.artifacts.removeIf { it.buildDependencies.getDependencies().contains(jar) }
+        it.outgoing.artifact(bootJar)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('testcontainersVersion', "1.15.3")
+}
+
+dependencies {
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.3'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.liquibase:liquibase-core'
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+    implementation 'io.springfox:springfox-swagger-ui:2.8.0'
+    implementation 'io.springfox:springfox-swagger2:2.8.0'
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.1'
+    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.1'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.11.1'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'org.postgresql:postgresql'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
+
+    liquibaseRuntime 'org.liquibase:liquibase-core'
+    liquibaseRuntime 'ch.qos.logback:logback-core:1.2.3'
+    liquibaseRuntime 'ch.qos.logback:logback-classic:1.2.3'
+    liquibaseRuntime 'org.postgresql:postgresql'
+    liquibaseRuntime 'org.springframework.boot:spring-boot-starter'
+    liquibaseRuntime 'org.springframework.boot:spring-boot-starter-data-jpa'
+    liquibaseRuntime 'org.liquibase.ext:liquibase-hibernate5:3.8'
+    liquibaseRuntime sourceSets.main.output
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
+    }
+}
+
+///////////////////////////////////////////////////
+//         OpenAPI Configuration
+///////////////////////////////////////////////////
+def openApiSpecFile = "${rootDir}/src/main/resources/api.yaml"
+def openApiGeneratedSourcesDir = "${buildDir}/generated/openapi"
+
+///////////////////////////////////////////////////
+// Configure liquibase tasks with jasypt encrypted
+// properties
+///////////////////////////////////////////////////
+StandardPBEStringEncryptor encryptor
+if (!(System.getenv("JASYPT_ENCRYPTOR_PASSWORD") == null)) {
+    def profile = System.getProperty("spring.profiles.active")
+    println("Active profiles: ${profile}")
+    def config = new Yaml().load(new File("$rootDir/src/main/resources/application.yaml").newInputStream())
+    HashMap profileconfig
+    if (profile != null) {
+        profileconfig = new Yaml().load(new File("$rootDir/src/main/resources/application-${profile}.yaml").newInputStream())
+    }
+
+    encryptor = new StandardPBEStringEncryptor()
+    encryptor.setAlgorithm(config.jasypt.encryptor.algorithm)
+    encryptor.setSaltGenerator(new RandomSaltGenerator())
+    encryptor.setIvGenerator(new RandomIvGenerator())
+    encryptor.setPassword(System.getenv("JASYPT_ENCRYPTOR_PASSWORD"))
+
+    if (profileconfig) {
+
+        liquibase {
+            activities {
+                main {
+                    changeLogFile "src/main/resources/db/changelog/db.changelog-master.yaml"
+                    outputFile "src/main/resources/generatedChangelog.log"
+                    driver "org.postgresql.Driver"
+                    url profileconfig.spring.datasource.url
+                    username encryptor.decrypt('AUDqk7vEAXrppVMvHrLSZYT9cNHZD929Yn6T0scAo0yr1VSScXSYPDqzpti0Sc0u')
+                    password encryptor.decrypt('I2DCUbEZpUbV2hmmrQ/0KpP4McCq1r6LFe/fOWwiqxoScUW1SJOHdwQBvX99WiFS')
+                }
+                diff {
+                    changeLogFile "src/main/resources/db/changelog/db.changelog.yaml"
+                    outputFile "src/main/resources/generatedChangelog.log"
+                    driver "org.postgresql.Driver"
+                    url profileconfig.spring.datasource.url
+                    referenceUrl "hibernate:spring:com.iteratec.mepic.model.persistence?dialect=org.hibernate.dialect.PostgreSQLDialect"
+                    username encryptor.decrypt('AUDqk7vEAXrppVMvHrLSZYT9cNHZD929Yn6T0scAo0yr1VSScXSYPDqzpti0Sc0u')
+                    password encryptor.decrypt('I2DCUbEZpUbV2hmmrQ/0KpP4McCq1r6LFe/fOWwiqxoScUW1SJOHdwQBvX99WiFS')
+                    referenceDriver "liquibase.ext.hibernate.database.connection.HibernateDriver"
+                }
+
+                runList = project.ext.runList
+            }
+        }
+    } else {
+        println("No profile loaded, liquibase tasks are not available.")
+    }
+}
+///////////////////////////////////////////////////
+//                    Tasks
+///////////////////////////////////////////////////
+test {
+    useJUnitPlatform()
+}
+
+springBoot {
+    mainClass.set('com.iteratec.mepic.MepicApplication')
+}

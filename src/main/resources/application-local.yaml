@@ -1,0 +1,16 @@
+---
+spring:
+  datasource:
+    url: 'jdbc:postgresql://localhost:5432/mepic'
+    username: ENC(AUDqk7vEAXrppVMvHrLSZYT9cNHZD929Yn6T0scAo0yr1VSScXSYPDqzpti0Sc0u)
+    password: ENC(I2DCUbEZpUbV2hmmrQ/0KpP4McCq1r6LFe/fOWwiqxoScUW1SJOHdwQBvX99WiFS)
+    driverClassname: org.postgresql.Driver
+  jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQL82Dialect
+  liquibase:
+    contexts: local
+logging:
+  level:
+    root: DEBUG
+    com.iteratec: DEBUG

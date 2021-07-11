@@ -1,0 +1,27 @@
+version: "3.8"
+
+secrets:
+  mepic_db_user:
+    external: true
+  mepic_db_pass:
+    external: true
+
+services:
+
+  db: 
+    image: postgres:12
+    restart: always
+    ports:
+      - 5432:5432
+    secrets:
+      - mepic_db_user
+      - mepic_db_pass
+    environment:
+      - POSTGRES_USER_FILE=/run/secrets/mepic_db_user
+      - POSTGRES_PASSWORD_FILE=/run/secrets/mepic_db_pass
+    
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8090:8080
